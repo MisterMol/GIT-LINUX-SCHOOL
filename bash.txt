@@ -1,43 +1,57 @@
-#! /bin/bash		# run /bin/bash met path naar script als parameter
-
+#!/bin/bash
 
 echo "Hello"
 
-dir=$1 # store directory from script parameter in variable
+dir=$1
+option=$2
 
-if [ -d "$1" ]; 		# -f is for file
-	# Yes
-else
-	echo "Voer een directory in"
-	exit		
+if [ "$option" != "week" ] && [ "$option" != "maand" ]; then
+    echo "Geef een geldige tweede parameter: 'week' of 'maand'"
+    exit 1
 fi
 
-#cast string to int
-new = $((var))
+if [ ! -d "$dir" ]; then
+    echo "Voer een bestaande directory in"
+    exit 1
+fi
 
-# run through dir
-for i in "$dir"/*
-do
-	
+for file in "$dir"/*; do
+    if [ -f "$file" ]; then
+        if [[ "$file" == *.jpg || "$file" == *.png || "$file" == *.jpeg ]]; then
+            filename=$(basename -- "$file")
+            extension="${filename##*.}"
+            filename="${filename%.*}"
 
+            # Haal creatiedatum op
+            if [[ "$OSTYPE" == "darwin"* ]]; then
+                # macOS
+                creation_date=$(stat -f "%Sm" -t "%Y-%m-%d" "$file")
+            else
+                # Linux
+                creation_date=$(stat -c "%y" "$file" | awk '{print $1}')
+            fi
+
+            # Haal week- of maandnummer op
+            if [ "$option" == "week" ]; then
+                date_number=$(date -d "$creation_date" +"%V") # Weeknummer
+            else
+                date_number=$(date -d "$creation_date" +"%m") # Maandnummer
+            fi
+
+            # Maak een nieuwe map op basis van week- of maandnummer
+            new_dir="$dir/$option$date_number"
+            if [ ! -d "$new_dir" ]; then
+                if mkdir -p "$new_dir"; then
+                    echo "Nieuwe map is aangemaakt: $new_dir"
+                else
+                    echo "Kan geen nieuwe map maken: $new_dir"
+                    exit 1
+                fi
+            fi
+
+            # Verplaats het foto bestand naar de nieuwe map
+            mv "$file" "$new_dir/$filename.$extension"
+            echo "Bestand: $file is succesvol verplaatst naar $new_dir"
+        fi
+    fi
 done
-
-# make directory	
-mkdir 
-		
-# copy file 
-cp 
-
-# get creation date, bijv:
-creationdate=$(ls -l --time-style='+%d-%m-%y' "$i" | awk '{print $6}')
-
-# check md5sum, cut is for remove filename
-originalhash=$(sudo md5sum "$i" | cut -d " " -f1)
-
-
-
-
-
-
-
-
