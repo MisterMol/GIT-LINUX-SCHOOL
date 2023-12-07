@@ -15,10 +15,10 @@ get_month_number() {
 
 # Functie om foto's naar overeenkomstige mappen te verplaatsen op basis van de gekozen optie
 move_photos() {
-    local photos=("$1"/random fotos*)
+    local photos=$(find "$1" -type d -name "random fotos*" -print)
     local target_dir="$2"
     
-    for photo in "${photos[@]}"; do
+    for photo in "$photos"/*; do
         if [ -f "$photo" ]; then
             case "$option" in
                 "week")
