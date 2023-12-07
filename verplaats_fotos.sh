@@ -2,7 +2,7 @@
 
 source_dir=$(dirname "$0")  # De map waarin het script zich bevindt
 option=$1                   # Optie: "maand" of "week"
-target_dir="Nieuwe_Fotos"   # Naam van de doelmap
+target_dir="${source_dir}/Nieuwe_Fotos"   # Pad naar de doelmap
 
 # Functie om het weeknummer te verkrijgen
 get_week_number() {
@@ -38,16 +38,23 @@ move_photos() {
 
             mkdir -p "$destination"  # Maak de doelmap aan als deze niet bestaat
             cp "$photo" "$destination"  # Kopieer de foto naar de bestemming
-            
+
             # Controleer of de kopie succesvol was door middel van de MD5-hash
             if diff -q <(md5sum "$photo") <(md5sum "${destination}/$(basename "$photo")") >/dev/null; then
                 rm "$photo"  # Verwijder de originele foto als de kopie succesvol was
+                echo "Foto $(basename "$photo") succesvol verplaatst naar ${destination}"
             else
-                echo "Fout bij kopiëren van foto: $(basename "$photo")"
+                echo "Fout bij kopiëren van foto: $(basename "$photo") naar ${destination}"
             fi
         fi
     done
 }
+
+# Maak de doelmap aan als deze niet bestaat
+if [ ! -d "$target_dir" ]; then
+    mkdir -p "$target_dir"
+    echo "Doelmap 'Nieuwe_Fotos' aangemaakt in ${source_dir}"
+fi
 
 # Roep de functie aan om foto's te verplaatsen
 move_photos "$source_dir" "$target_dir"
