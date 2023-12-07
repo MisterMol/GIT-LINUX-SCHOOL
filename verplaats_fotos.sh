@@ -20,72 +20,46 @@ if [ ! -d "$dir" ]; then
 fi
 # Controleert of de opgegeven directory bestaat. Zo niet, wordt een foutmelding weergegeven en wordt het script beëindigd met status 1.
 
-destination_dir="/nieuwe_fotos"  # Verander dit naar jouw gewenste doelmap
-# Stelt de bestemmingsmap in op "/nieuwe_fotos".
-
-# Controleer of de doelmap bestaat, anders maak deze aan
-if [ ! -d "$destination_dir" ]; then
-    if mkdir -p "$destination_dir"; then
-        echo "Bestemmingsmap is aangemaakt: $destination_dir"
-    else
-        echo "Kan geen bestemmingsmap maken: $destination_dir"
-        exit 1
-    fi
-fi
-# Controleert of de doelmap bestaat. Zo niet, wordt deze gemaakt en wordt een bericht weergegeven; anders wordt een foutmelding weergegeven en wordt het script beëindigd met status 1.
-
-# Functie om het week- of maandnummer uit de creatiedatum van het bestand te halen
-get_date_number() {
-    local file_date=$1
-    local format=$2
-    echo $(date -d "$file_date" +"$format")
-}
-# Definieert een functie 'get_date_number' om het week- of maandnummer uit een gegeven datum te halen.
-
 # Loop door de map
 for file in "$dir"/*
 do
     if [ -f "$file" ]; then
-        # Haal creatiedatum op
-        creation_date=$(stat -c "%y" "$file" | awk '{print $1}') # Aanmaaktijd, verander %y naar %w voor geboortetijd
+        # Controleer of het een foto bestand is (extensies zoals .jpg, .png, .jpeg, etc.)
+        if [[ "$file" == *.jpg || "$file" == *.png || "$file" == *.jpeg ]]; then
+            # Haal alleen de bestandsnaam zonder het pad op
+            filename=$(basename -- "$file")
         
-        # Haal week- of maandnummer op
-        if [ "$option" == "week" ]; then
-            date_number=$(get_date_number "$creation_date" "%V") # Weeknummer
-        else
-            date_number=$(get_date_number "$creation_date" "%m") # Maandnummer
-        fi
-        # Bepaalt het week- of maandnummer vanuit de aanmaakdatum van het bestand.
+            # Haal de extensie van het bestand op
+            extension="${filename##*.}"
+            
+            # Haal de bestandsnaam zonder de extensie op
+            filename="${filename%.*}"
 
-        # Maak een submap op basis van week- of maandnummer
-        sub_dir="$destination_dir/$option$date_number"
-        if [ ! -d "$sub_dir" ]; then
-            if mkdir -p "$sub_dir"; then
-                echo "Submap is aangemaakt: $sub_dir"
+            # Haal creatiedatum op
+            creation_date=$(stat -c "%y" "$file" | awk '{print $1}') # Aanmaaktijd, verander %y naar %w voor geboortetijd
+
+            # Haal week- of maandnummer op
+            if [ "$option" == "week" ]; then
+                date_number=$(date -d "$creation_date" +"%V") # Weeknummer
             else
-                echo "Kan geen submap maken: $sub_dir"
-                exit 1
+                date_number=$(date -d "$creation_date" +"%m") # Maandnummer
             fi
+
+            # Maak een nieuwe map op basis van week- of maandnummer
+            new_dir="$dir/$option$date_number"
+            if [ ! -d "$new_dir" ]; then
+                if mkdir -p "$new_dir"; then
+                    echo "Nieuwe map is aangemaakt: $new_dir"
+                else
+                    echo "Kan geen nieuwe map maken: $new_dir"
+                    exit 1
+                fi
+            fi
+            
+            # Verplaats het foto bestand naar de nieuwe map
+            mv "$file" "$new_dir/$filename.$extension"
+            echo "Bestand: $file is succesvol verplaatst naar $new_dir"
         fi
-        # Maakt een submap binnen de doelmap op basis van het week- of maandnummer.
-
-        # Kopieer bestand naar de doelsubmap
-        cp "$file" "$sub_dir"
-        # Kopieert het bestand naar de doelsubmap.
-
-        # Controleer md5sum
-        original_hash=$(md5sum "$file" | awk '{print $1}')
-        copied_hash=$(md5sum "$sub_dir/$(basename "$file")" | awk '{print $1}')
-        # Berekent de MD5-hash van het originele bestand en het gekopieerde bestand.
-
-        if [ "$original_hash" == "$copied_hash" ]; then
-            # Verwijder het originele bestand als de kopie succesvol was
-            rm "$file"
-            echo "Bestand: $file is succesvol verplaatst naar $sub_dir"
-        else
-            echo "Fout bij kopiëren van $file naar $sub_dir. Hashes komen niet overeen."
-        fi
-        # Als de hashes overeenkomen, wordt het originele bestand verwijderd; anders wordt een foutmelding weergegeven.
     fi
 done
 # Doorloopt elk bestand in de opgegeven directory.
