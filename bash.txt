@@ -31,15 +31,17 @@ for file in "$dir"/*; do
                 creation_date=$(stat -c "%y" "$file" | awk '{print $1}')
             fi
 
-            # Haal week- of maandnummer op
+            # Haal maand- of weeknummer op
             if [ "$option" == "week" ]; then
                 date_number=$(date -d "$creation_date" +"%V") # Weeknummer
+                new_dir="$dir/Week$date_number"
             else
                 date_number=$(date -d "$creation_date" +"%m") # Maandnummer
+                month_name=$(date -d "$creation_date" +"%B") # Maandnaam
+                new_dir="$dir/Maand$month_name$date_number"
             fi
 
-            # Maak een nieuwe map op basis van week- of maandnummer
-            new_dir="$dir/$option$date_number"
+            # Maak een nieuwe map op basis van maand- of weeknummer
             if [ ! -d "$new_dir" ]; then
                 if mkdir -p "$new_dir"; then
                     echo "Nieuwe map is aangemaakt: $new_dir"
