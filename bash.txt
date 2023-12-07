@@ -1,0 +1,43 @@
+#! /bin/bash		# run /bin/bash met path naar script als parameter
+
+
+echo "Hello"
+
+dir=$1 # store directory from script parameter in variable
+
+if [ -d "$1" ]; 		# -f is for file
+	# Yes
+else
+	echo "Voer een directory in"
+	exit		
+fi
+
+#cast string to int
+new = $((var))
+
+# run through dir
+for i in "$dir"/*
+do
+	
+
+done
+
+# make directory	
+mkdir 
+		
+# copy file 
+cp 
+
+# get creation date, bijv:
+creationdate=$(ls -l --time-style='+%d-%m-%y' "$i" | awk '{print $6}')
+
+# check md5sum, cut is for remove filename
+originalhash=$(sudo md5sum "$i" | cut -d " " -f1)
+
+
+
+
+
+
+
+
