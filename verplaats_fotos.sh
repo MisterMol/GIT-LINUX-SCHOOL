@@ -9,6 +9,11 @@ move_photos() {
     local photos=$(find "${source_dir}/random fotos" -type f)
     local target="$2"
 
+    if [ -z "$photos" ]; then
+        echo "Er zijn geen foto's gevonden in de map 'random fotos'."
+        exit 1
+    fi
+
     for photo in $photos; do
         if [ -f "$photo" ]; then
             case "$option" in
@@ -33,8 +38,11 @@ move_photos() {
     done
 }
 
-# Vraag de gebruiker om invoer van 'maand' of 'week'
-read -p "Voer 'maand' of 'week' in voor het verplaatsen van de foto's: " user_option
+# Controleer of de bronmap bestaat
+if [ ! -d "${source_dir}/random fotos" ]; then
+    echo "De map 'random fotos' is niet gevonden in de bronmap."
+    exit 1
+fi
 
 # Roep de functie aan om foto's te verplaatsen
 move_photos "$user_option" "$target_dir"
