@@ -1,48 +1,31 @@
 #!/bin/bash
 
-source_dir=$(dirname "$0")  # De map waarin het script zich bevindt
-target_dir="${source_dir}/Nieuwe_Fotos"   # Pad naar de doelmap
+echo "Hello"
 
-# Functie om foto's naar overeenkomstige mappen te verplaatsen op basis van de gekozen optie
-move_photos() {
-    local option="$1"
-    local photos=$(find "${source_dir}/random fotos" -type f)
-    local target="$2"
+dir=$1 # Store directory from script parameter in variable
 
-    if [ -z "$photos" ]; then
-        echo "Er zijn geen foto's gevonden in de map 'random fotos'."
-        exit 1
-    fi
-
-    for photo in $photos; do
-        if [ -f "$photo" ]; then
-            case "$option" in
-                "week")
-                    week_number=$(date +"%V")
-                    new_name="${target}/week_${week_number}_$(basename "$photo")"
-                    ;;
-                "maand")
-                    month_number=$(date +"%m")
-                    new_name="${target}/maand_${month_number}_$(basename "$photo")"
-                    ;;
-                *)
-                    echo "Ongeldige optie. Kies 'maand' of 'week'."
-                    exit 1
-                    ;;
-            esac
-
-            mkdir -p "$target"  # Maak de doelmap aan als deze niet bestaat
-            mv "$photo" "$new_name"  # Verplaats de foto naar de bestemming met nieuwe naam
-            echo "Foto '$(basename "$photo")' succesvol verplaatst naar '${new_name}'"
-        fi
-    done
-}
-
-# Controleer of de bronmap bestaat
-if [ ! -d "${source_dir}/random fotos" ]; then
-    echo "De map 'random fotos' is niet gevonden in de bronmap."
+if [ ! -d "$dir" ]; then
+    echo "Voer een bestaande directory in"
     exit 1
 fi
 
-# Roep de functie aan om foto's te verplaatsen
-move_photos "$user_option" "$target_dir"
+# Loop through directory
+for file in "$dir"/*
+do
+    if [ -f "$file" ]; then
+        # Make directory (if not exists)
+        destination_dir="/nieuwe_fotos"  # Change this to your desired destination folder
+        mkdir -p "$destination_dir"  # -p flag creates parent directories if they don't exist
+        
+        # Copy file to destination
+        cp "$file" "$destination_dir"
+        
+        # Get creation date
+        creationdate=$(stat -c "%y" "$file" | awk '{print $1}') # Modification time, change %y to %w for birth time
+        
+        # Check md5sum
+        originalhash=$(md5sum "$file" | awk '{print $1}')
+
+        echo "File: $file, Creation Date: $creationdate, MD5 Hash: $originalhash"
+    fi
+done
