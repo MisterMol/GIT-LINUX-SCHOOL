@@ -1,34 +1,24 @@
 #!/bin/bash
 
 source_dir=$(dirname "$0")  # De map waarin het script zich bevindt
-option=$1                   # Optie: "maand" of "week"
 target_dir="${source_dir}/Nieuwe_Fotos"   # Pad naar de doelmap
-
-# Functie om het weeknummer te verkrijgen
-get_week_number() {
-    date +"%V"
-}
-
-# Functie om het maandnummer te verkrijgen
-get_month_number() {
-    date +"%m"
-}
 
 # Functie om foto's naar overeenkomstige mappen te verplaatsen op basis van de gekozen optie
 move_photos() {
-    local photos=$(find "$1/random fotos" -type f)
+    local option="$1"
+    local photos=$(find "${source_dir}/random fotos" -type f)
     local target="$2"
 
     for photo in $photos; do
         if [ -f "$photo" ]; then
             case "$option" in
                 "week")
-                    week_number=$(get_week_number)
-                    destination="${target}/${week_number}"
+                    week_number=$(date +"%V")
+                    new_name="${target}/week_${week_number}_$(basename "$photo")"
                     ;;
                 "maand")
-                    month_number=$(get_month_number)
-                    destination="${target}/${month_number}"
+                    month_number=$(date +"%m")
+                    new_name="${target}/maand_${month_number}_$(basename "$photo")"
                     ;;
                 *)
                     echo "Ongeldige optie. Kies 'maand' of 'week'."
@@ -36,25 +26,15 @@ move_photos() {
                     ;;
             esac
 
-            mkdir -p "$destination"  # Maak de doelmap aan als deze niet bestaat
-            cp "$photo" "$destination"  # Kopieer de foto naar de bestemming
-
-            # Controleer of de kopie succesvol was door middel van de MD5-hash
-            if diff -q <(md5sum "$photo") <(md5sum "${destination}/$(basename "$photo")") >/dev/null; then
-                rm "$photo"  # Verwijder de originele foto als de kopie succesvol was
-                echo "Foto $(basename "$photo") succesvol verplaatst naar ${destination}"
-            else
-                echo "Fout bij kopiëren van foto: $(basename "$photo") naar ${destination}"
-            fi
+            mkdir -p "$target"  # Maak de doelmap aan als deze niet bestaat
+            mv "$photo" "$new_name"  # Verplaats de foto naar de bestemming met nieuwe naam
+            echo "Foto '$(basename "$photo")' succesvol verplaatst naar '${new_name}'"
         fi
     done
 }
 
-# Maak de doelmap aan als deze niet bestaat
-if [ ! -d "$target_dir" ]; then
-    mkdir -p "$target_dir"
-    echo "Doelmap 'Nieuwe_Fotos' aangemaakt in ${source_dir}"
-fi
+# Vraag de gebruiker om invoer van 'maand' of 'week'
+read -p "Voer 'maand' of 'week' in voor het verplaatsen van de foto's: " user_option
 
 # Roep de functie aan om foto's te verplaatsen
-move_photos "$source_dir" "$target_dir"
+move_photos "$user_option" "$target_dir"
