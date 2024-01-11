@@ -34,6 +34,12 @@
         state: present
       become: true
 
+    - name: Install MariaDB Python module
+      apt:
+        name: python3-pymysql
+        state: present
+      become: true
+
     - name: Install MariaDB
       apt:
         name: mariadb-server
