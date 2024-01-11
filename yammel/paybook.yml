@@ -1,0 +1,57 @@
+---
+- name: Install net-tools, syslog-ng, Apache, and MariaDB
+  hosts: Minions
+  become: true  # Run tasks with sudo
+
+  tasks:
+    - name: Install net-tools
+      apt:
+        name: net-tools
+        state: present
+      become: true
+
+    - name: Install syslog-ng
+      apt:
+        name: syslog-ng
+        state: present
+      become: true
+
+    - name: Configure syslog-ng to send logs to the controller
+      template:
+        src: syslog-ng.conf.j2
+        dest: /etc/syslog-ng/syslog-ng.conf
+      become: true
+
+    - name: Restart syslog-ng service
+      service:
+        name: syslog-ng
+        state: restarted
+      become: true
+
+    - name: Install Apache
+      apt:
+        name: apache2
+        state: present
+      become: true
+
+    - name: Install MariaDB
+      apt:
+        name: mariadb-server
+        state: present
+      become: true
+
+    - name: Secure MariaDB installation (set root password, remove anonymous users, etc.)
+      mysql_user:
+        name: root
+        password: jelledrost
+        login_user: root
+        login_password: ''
+        state: present
+        host: localhost
+      become: true
+
+    - name: Restart Apache service
+      service:
+        name: apache2
+        state: restarted
+      become: true

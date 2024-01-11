@@ -1,0 +1,24 @@
+#!/bin/bash
+
+# Update het pakkettenbestand
+sudo apt update
+
+# Installeer Munin-node
+sudo apt install munin-node
+
+# Configureer Munin-node om verbinding te maken met Jelle-Controller
+echo "allow ^10\.0\.0\.10$" | sudo tee -a /etc/munin/munin-node.conf
+
+# Herstart Munin-node
+sudo systemctl restart munin-node
+
+# Installeer Syslog NG-client
+sudo apt install syslog-ng
+
+# Configureer Syslog NG om logs naar Jelle-Controller te sturen
+echo "destination d_net { tcp(\"10.0.0.10\" port(514)); };
+log { source(src); destination(d_net); };
+" | sudo tee -a /etc/syslog-ng/syslog-ng.conf
+
+# Herstart Syslog NG-client
+sudo systemctl restart syslog-ng
