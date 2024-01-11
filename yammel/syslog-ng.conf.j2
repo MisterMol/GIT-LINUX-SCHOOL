@@ -1,0 +1,28 @@
+# syslog-ng.conf.j2
+
+@version: 3.25
+@include "scl.conf"
+
+options {
+    flush_lines (0);
+    time_reopen (10);
+    log_fifo_size (1000);
+    chain_hostnames (off);
+    use_dns (no);
+    use_fqdn (no);
+    create_dirs (no);
+    keep_hostname (yes);
+};
+
+source s_net {
+    network(ip(0.0.0.0) port(514));
+};
+
+destination d_controller {
+    tcp("10.0.0.10" port(514));
+};
+
+log {
+    source(s_net);
+    destination(d_controller);
+};
