@@ -1,26 +1,35 @@
 ---
-- name: Install net-tools, syslog-ng, Apache, and MariaDB
+- name: Install net-tools, syslog-ng, Apache, MariaDB, and Munin-node
   hosts: Minions
-  become: true  # Run tasks with sudo
+  become: true
 
   tasks:
     - name: Install net-tools
       apt:
         name: net-tools
         state: present
-      become: true
 
     - name: Install syslog-ng
       apt:
         name: syslog-ng
         state: present
-      become: true
 
     - name: Configure syslog-ng to send logs to the controller
       template:
         src: syslog-ng.conf.j2
         dest: /etc/syslog-ng/syslog-ng.conf
-      become: true
+      notify: Restart syslog-ng service
+
+    - name: Install Munin-node
+      apt:
+        name: munin-node
+        state: present
+
+    - name: Copy munin-node.config.j2 to /etc/munin/ and replace the config file
+      template:
+        src: munin-node.conf.j2
+        dest: /etc/munin/munin-node.conf
+      notify: Restart Munin-node service
 
     - name: Restart syslog-ng service
       service:
@@ -32,22 +41,30 @@
       apt:
         name: apache2
         state: present
-      become: true
 
     - name: Install MariaDB Python module
       apt:
         name: python3-pymysql
         state: present
-      become: true
 
     - name: Install MariaDB
       apt:
         name: mariadb-server
         state: present
-      become: true
 
     - name: Restart Apache service
       service:
         name: apache2
         state: restarted
+
+  handlers:
+    - name: Restart syslog-ng service
+      service:
+        name: syslog-ng
+        state: restarted
       become: true
+
+    - name: Restart Munin-node service
+      service:
+        name: munin-node
+        state: restarted

@@ -1,0 +1,67 @@
+---
+- hosts: localhost
+  become: true
+  tasks:
+    - name: Install net-tools
+      apt:
+        name: net-tools
+        state: present
+
+    - name: Install munin
+      apt:
+        name: munin
+        state: present
+
+    - name: Install apache2
+      apt:
+        name: apache2
+        state: present
+
+    - name: Copy apache24.conf.j2 to /etc/munin/
+      copy:
+        src: "path/to/apache24.conf.j2"
+        dest: "/etc/munin/apache24.conf"
+        owner: root
+        group: root
+        mode: 0644
+      notify: Restart Apache
+
+    - name: Copy munin.conf.j2 to /etc/munin/
+      copy:
+        src: "path/to/munin.conf.j2"
+        dest: "/etc/munin/munin.conf"
+        owner: root
+        group: root
+        mode: 0644
+      notify: Restart Munin
+
+    - name: Install syslog-ng
+      apt:
+        name: syslog-ng
+        state: present
+      become: true
+
+    - name: Copy syslog-ng.conf.j2 to /etc/syslog-ng/
+      copy:
+        src: "path/to/syslog-ng.conf.j2"
+        dest: "/etc/syslog-ng/syslog-ng.conf"
+        owner: root
+        group: root
+        mode: 0644
+      notify: Restart syslog-ng
+
+  handlers:
+    - name: Restart Apache
+      service:
+        name: apache2
+        state: restarted
+
+    - name: Restart Munin
+      service:
+        name: munin
+        state: restarted
+
+    - name: Restart syslog-ng
+      service:
+        name: syslog-ng
+        state: restarted

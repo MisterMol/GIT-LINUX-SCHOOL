@@ -1,0 +1,8 @@
+[Minions]
+10.0.0.28 ansible_ssh_private_key_file=/home/jelledrost/.ssh/private_key_logi> ansible_user=jelledrost
+
+[wordpress_host]
+10.0.0.28 ansible_ssh_private_key_file=/home/jelledrost/.ssh/private_key_logi> ansible_user=jelledrost
+
+[docker_host]
+10.0.0.28 ansible_ssh_private_key_file=/home/jelledrost/.ssh/private_key_logi> ansible_user=jelledrost
