@@ -19,7 +19,7 @@
 
     - name: Copy apache24.conf.j2 to /etc/munin/
       copy:
-        src: "path/to/apache24.conf.j2"
+        src: "apache24.conf.j2"
         dest: "/etc/munin/apache24.conf"
         owner: root
         group: root
@@ -28,7 +28,7 @@
 
     - name: Copy munin.conf.j2 to /etc/munin/
       copy:
-        src: "path/to/munin.conf.j2"
+        src: "munin.conf.j2"
         dest: "/etc/munin/munin.conf"
         owner: root
         group: root
@@ -43,7 +43,7 @@
 
     - name: Copy syslog-ng.conf.j2 to /etc/syslog-ng/
       copy:
-        src: "path/to/syslog-ng.conf.j2"
+        src: "syslog-ng.conf.j2"
         dest: "/etc/syslog-ng/syslog-ng.conf"
         owner: root
         group: root
