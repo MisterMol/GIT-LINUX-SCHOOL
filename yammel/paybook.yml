@@ -46,16 +46,6 @@
         state: present
       become: true
 
-    - name: Secure MariaDB installation (set root password, remove anonymous users, etc.)
-      mysql_user:
-        name: root
-        password: jelledrost
-        login_user: root
-        login_password: ''
-        state: present
-        host: localhost
-      become: true
-
     - name: Restart Apache service
       service:
         name: apache2
