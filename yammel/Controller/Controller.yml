@@ -2,6 +2,11 @@
 - hosts: localhost
   become: true
   tasks:
+        - name: Update and upgrade packages
+      apt:
+        update_cache: yes
+        upgrade: yes
+        
     - name: Install net-tools
       apt:
         name: net-tools
