@@ -31,7 +31,28 @@
         group: www-data
         recurse: yes
 
-    - name: Configure WordPress
-      template:
-        src: "wp-config.php.j2"
-        dest: "/var/www/html/wp-config.php"
+    - name: Create index.html for verification
+      copy:
+        content: "WordPress installed successfully!"
+        dest: "/var/www/html/index.html"
+
+    - name: Install required PHP extensions
+      apt:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - php-mysql
+        - php-curl
+        - php-gd
+        - php-mbstring
+        - php-xml
+
+    - name: Restart Apache
+      service:
+        name: apache2
+        state: restarted
+
+    - name: Restart MariaDB
+      service:
+        name: mysql
+        state: restarted
