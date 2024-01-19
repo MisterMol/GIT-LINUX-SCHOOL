@@ -57,9 +57,9 @@
         name: python3-pymysql
         state: present
 
-    - name: Install MariaDB
+    - name: Install MySQL Server
       apt:
-        name: mariadb-server
+        name: mysql-server
         state: present
 
     - name: Restart Apache service
